@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Planta de Diesel Miraflores - Uncia, Bolivia</title>
+  
+  <!-- Fuentes y estilos -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Oswald:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Three.js para modelos 3D -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  
+  <style>
+    /* Variables y reset */
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #e67e22;
+      --accent-dark: #d35400;
+      --light-color: #ecf0f1;
+      --dark-color: #2c3e50;
+      --text-light: #ffffff;
+      --text-dark: #2c3e50;
+      --text-gray: #7f8c8d;
+      --transition: all 0.3s ease;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background-color: #f9f9f9;
+      overflow-x: hidden;
+    }
+    
+    h1, h2, h3, h4, h5 {
+      font-family: 'Oswald', sans-serif;
+      font-weight: 600;
+    }
+    
+    /* Header y navegación */
+    header {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      position: fixed;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 15px rgba(0, 0, 0, 0.3);
+      transition: var(--transition);
+    }
+    
+    header.scrolled {
+      background: rgba(44, 62, 80, 0.95);
+      backdrop-filter: blur(10px);
+    }
+    
+    .menu-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    .logo {
+      color: var(--text-light);
+      font-size: 1.8rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .logo i {
+      color: var(--accent-color);
+      margin-right: 0.5rem;
+      font-size: 2rem;
+    }
+    
+    .logo span {
+      background: linear-gradient(to right, var(--accent-color), var(--accent-dark));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 700;
+    }
+    
+    .menu {
+      display: flex;
+    }
+    
+    .menu a {
+      color: var(--text-light);
+      text-decoration: none;
+      padding: 0.7rem 1.2rem;
+      margin: 0 0.2rem;
+      border-radius: 4px;
+      transition: var(--transition);
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .menu a::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 3px;
+      background: var(--accent-color);
+      transition: var(--transition);
+    }
+    
+    .menu a:hover::before, .menu a.active::before {
+      width: 100%;
+    }
+    
+    .menu a:hover, .menu a.active {
+      color: var(--accent-color);
+    }
+    
+    .menu-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text-light);
+      font-size: 1.8rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .menu-toggle:hover {
+      color: var(--accent-color);
+    }
+    
+    /* Secciones */
+    section {
+      padding: 6rem 2rem;
+      min-height: 100vh;
+      display: none;
+      position: relative;
+    }
+    
+    section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0.05;
+      z-index: -1;
+    }
+    
+    section.active {
+      display: block;
+      animation: fadeIn 0.8s ease;
+    }
+    
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+      color: var(--primary-color);
+      position: relative;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .section-title::after {
+      content: '';
+      position: absolute;
+      bottom: -15px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 5px;
+      background: linear-gradient(to right, var(--accent-color), var(--accent-dark));
+      border-radius: 2px;
+    }
+    
+    /* Inicio - Modelo 3D */
+    #inicio {
+      padding-top: 8rem;
+      background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.8)), 
+                  url('https://images.unsplash.com/photo-1621521008495-0fe241466c78?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+      color: var(--text-light);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    #inicio::before {
+      background: url('https://images.unsplash.com/photo-1621521008495-0fe241466c78?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+      opacity: 0.15;
+    }
+    
+    .hero-content {
+      max-width: 900px;
+      z-index: 2;
+      animation: slideUp 1s ease;
+    }
+    
+    .hero-title {
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      color: var(--text-light);
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+      text-transform: uppercase;
+      letter-spacing: 3px;
+    }
+    
+    .hero-subtitle {
+      font-size: 1.8rem;
+      margin-bottom: 2rem;
+      color: var(--accent-color);
+      font-weight: 500;
+    }
+    
+    .hero-content p {
+      font-size: 1.2rem;
+      margin-bottom: 2.5rem;
+      max-width: 700px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .model-container {
+      width: 100%;
+      height: 450px;
+      margin: 2.5rem 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      border: 2px solid rgba(230, 126, 34, 0.3);
+      position: relative;
+    }
+    
+    .model-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, rgba(44, 62, 80, 0.2), rgba(230, 126, 34, 0.1));
+      z-index: 1;
+      pointer-events: none;
+    }
+    
+    /* Historia */
+    #historia {
+      background-color: var(--light-color);
+    }
+    
+    #historia::before {
+      background: url('https://images.unsplash.com/photo-1581881067983-80a80e0e6cfd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+    }
+    
+    .history-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    
+    .history-text {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      transition: var(--transition);
+    }
+    
+    .history-text:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .history-text h3 {
+      color: var(--primary-color);
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    
+    .history-text h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 50px;
+      height: 4px;
+      background: var(--accent-color);
+      border-radius: 2px;
+    }
+    
+    .history-text p {
+      margin-bottom: 1.5rem;
+      color: var(--text-gray);
+      line-height: 1.8;
+    }
+    
+    .history-image {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+      height: 100%;
+      position: relative;
+    }
+    
+    .history-image:hover {
+      transform: scale(1.03);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+    
+    .history-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+    
+    .history-image:hover img {
+      transform: scale(1.05);
+    }
+    
+    /* Galería */
+    #galeria {
+      background-color: white;
+    }
+    
+    #galeria::before {
+      background: url('https://images.unsplash.com/photo-1610673382684-ed377469d5a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+    }
+    
+    .gallery-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 2rem;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+    
+    .gallery-item {
+      position: relative;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      height: 280px;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    
+    .gallery-item:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: var(--transition);
+    }
+    
+    .gallery-item:hover img {
+      transform: scale(1.1);
+    }
+    
+    .gallery-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+      color: white;
+      opacity: 0;
+      transition: var(--transition);
+      transform: translateY(20px);
+    }
+    
+    .gallery-item:hover .gallery-overlay {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Información */
+    #informacion {
+      background-color: var(--light-color);
+    }
+    
+    #informacion::before {
+      background: url('https://images.unsplash.com/photo-1600271886742-f049cd47bb44?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+    }
+    
+    .info-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+    
+    .map-container {
+      height: 450px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      transition: var(--transition);
+    }
+    
+    .map-container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+    }
+    
+    .contact-info {
+      background: linear-gradient(145deg, #ffffff, #f5f5f5);
+      padding: 2.5rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      transition: var(--transition);
+    }
+    
+    .contact-info:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .contact-info h3 {
+      color: var(--primary-color);
+      margin-bottom: 2rem;
+      text-align: center;
+      font-size: 1.8rem;
+      position: relative;
+      padding-bottom: 15px;
+    }
+    
+    .contact-info h3::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: var(--accent-color);
+      border-radius: 2px;
+    }
+    
+    .contact-info p {
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      color: var(--text-gray);
+      font-size: 1.1rem;
+    }
+    
+    .contact-info i {
+      color: var(--accent-color);
+      margin-right: 1rem;
+      width: 25px;
+      font-size: 1.3rem;
+    }
+    
+    .facts-box {
+      margin-top: 2rem;
+      padding: 1.5rem;
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      border-radius: 10px;
+      color: var(--text-light);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .facts-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: rotate(45deg);
+      animation: shine 3s infinite;
+    }
+    
+    /* Footer */
+    footer {
+      background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+      color: var(--text-light);
+      text-align: center;
+      padding: 3rem 2rem;
+    }
+    
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .footer-logo {
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: var(--text-light);
+    }
+    
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 2rem;
+    }
+    
+    .footer-links a {
+      color: var(--text-light);
+      margin: 0 1rem;
+      font-size: 1.2rem;
+      transition: var(--transition);
+    }
+    
+    .footer-links a:hover {
+      color: var(--accent-color);
+    }
+    
+    .copyright {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    /* Efectos y animaciones */
+    .btn {
+      display: inline-block;
+      background: linear-gradient(to right, var(--accent-color), var(--accent-dark));
+      color: var(--text-light);
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: 0.5s;
+    }
+    
+    .btn:hover::before {
+      left: 100%;
+    }
+    
+    .btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(230, 126, 34, 0.4);
+    }
+    
+    /* Animaciones */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { 
+        opacity: 0;
+        transform: translateY(50px);
+      }
+      to { 
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes shine {
+      0% { left: -100%; }
+      20% { left: 100%; }
+      100% { left: 100%; }
+    }
+    
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .hero-title {
+        font-size: 3rem;
+      }
+      
+      .history-content,
+      .info-container {
+        gap: 2rem;
+      }
+    }
+    
+    @media (max-width: 992px) {
+      .history-content,
+      .info-container {
+        grid-template-columns: 1fr;
+      }
+      
+      .history-image {
+        height: 400px;
+      }
+      
+      .hero-title {
+        font-size: 2.5rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.5rem;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .menu {
+        position: fixed;
+        top: 80px;
+        left: -100%;
+        flex-direction: column;
+        background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+        width: 100%;
+        text-align: center;
+        transition: 0.4s;
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        padding: 2rem 0;
+        z-index: 999;
+      }
+      
+      .menu.active {
+        left: 0;
+      }
+      
+      .menu a {
+        margin: 0.8rem 0;
+        padding: 1rem;
+        display: block;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+      }
+      
+      .menu-toggle {
+        display: block;
+      }
+      
+      .gallery-container {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      }
+      
+      .section-title {
+        font-size: 2rem;
+      }
+      
+      .hero-content p {
+        font-size: 1rem;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .menu-bar {
+        padding: 1rem;
+      }
+      
+      .logo {
+        font-size: 1.5rem;
+      }
+      
+      section {
+        padding: 5rem 1rem;
+      }
+      
+      .hero-title {
+        font-size: 2rem;
+      }
+      
+      .hero-subtitle {
+        font-size: 1.3rem;
+      }
+      
+      .model-container {
+        height: 350px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header con menú de navegación -->
+  <header>
+    <div class="menu-bar">
+      <div class="logo">
+        <i class="fas fa-industry"></i>
+        Planta <span>Diesel</span> Miraflores
+      </div>
+      <button class="menu-toggle" aria-label="Abrir menú">
+        <i class="fas fa-bars"></i>
+      </button>
+      <nav class="menu">
+        <a href="#inicio" class="nav-link active">Inicio</a>
+        <a href="#historia" class="nav-link">Historia</a>
+        <a href="#galeria" class="nav-link">Galería</a>
+        <a href="#informacion" class="nav-link">Información</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Sección de Inicio -->
+  <section id="inicio" class="active">
+    <div class="hero-content">
+      <h1 class="hero-title">Planta de Diesel Miraflores</h1>
+      <p class="hero-subtitle">Uncia, Potosí - Bolivia</p>
+      <p>La planta de Uncía fue un complejo minero–industrial construido y modernizado por Simón I. Patiño, con apoyo de ingenieros como Máximo Nava. Tenía ingenios, fundición y una planta eléctrica a diésel, y fue clave en la industrialización del estaño boliviano.</p>
+      
+      <div class="model-container" id="model-container">
+        <!-- El modelo 3D se cargará aquí mediante Three.js -->
+        <div style="text-align: center; padding-top: 180px; color: white;">
+          <i class="fas fa-cog fa-spin" style="font-size: 48px;"></i>
+          <p>Cargando modelo 3D...</p>
+        </div>
+        <div class="model-overlay"></div>
+      </div>
+      
+      <a href="#informacion" class="btn nav-link">Más información</a>
+    </div>
+  </section>
+
+  <!-- Sección de Historia -->
+  <section id="historia">
+    <h2 class="section-title">Nuestra Historia</h2>
+    <div class="history-content">
+      <div class="history-text">
+        <h3>Creación y Desarrollo</h3>
+        <p>La Planta de Diesel Miraflores fue establecida en la década de 1960 como parte del complejo minero de la región de Uncia, Potosí. Su creación respondió a la necesidad de abastecer de combustible a las operaciones mineras que eran vitales para la economía boliviana.</p>
+        
+        <p>Con el tiempo, la planta evolucionó para satisfacer las demandas cambiantes de la industria, modernizando sus procesos y adoptando tecnologías más eficientes y respetuosas con el medio ambiente.</p>
+        
+        <h3>Contribución Regional</h3>
+        <p>Durante décadas, la planta ha sido un pilar económico para la comunidad local, proporcionando empleo directo e indirecto a cientos de familias y contribuyendo al desarrollo de infraestructuras en la región.</p>
+        
+        <p>Hoy en día, continúa operando con un compromiso renovado con la sostenibilidad y la innovación tecnológica, manteniendo su papel crucial en el suministro energético del occidente boliviano.</p>
+      </div>
+      <div class="history-image">
+        <img src="img/6739247787_9da8347bc5_z.jpg" alt="Vista histórica de la planta">
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de Galería -->
+  <section id="galeria">
+    <h2 class="section-title">Galería</h2>
+    <div class="gallery-container">
+      <div class="gallery-item">
+        <img src="img/Planta.png" alt="Vista exterior de la planta">
+        <div class="gallery-overlay">
+          <h3>Vista Exterior</h3>
+          <p>Instalaciones principales de la planta</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="img/motor.jpg" alt="Maquinaria de producción">
+        <div class="gallery-overlay">
+          <h3>Maquinaria</h3>
+          <p>Enormes máquinas sin uso recuerdan la gloria de la Planta de Diesel Miraflores que daba energía a la región en tiempos de Patiño.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="img/Simon-I-Patino.jpg" alt="Equipo de trabajo">
+        <div class="gallery-overlay">
+          <h3>Simón I. Patiño</h3>
+          <p>Simón Iturri Patiño, magnate Boliviano nacido en 1860, fue un visionario de la industria minera. Su legado abarca desde su astucia empresarial hasta su compromiso con la educación y el desarrollo de Bolivia.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="img/maximo.png" alt="Procesos de refinación">
+        <div class="gallery-overlay">
+          <h3>Máximo Nava</h3>
+          <p>Máximo Nava fue un destacado ingeniero y empresario boliviano, conocido por su contribución a la industria del petróleo y su papel en el desarrollo de la Planta de Diesel Miraflores.</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="img/defensores_1.jpg" alt="Control de calidad">
+        <div class="gallery-overlay">
+          <h3>Administración</h3>
+          <p>Administradores y obreros de "La Salvadora"
+Simón I. Patiño (Cuarto de la izq. sentado en el piso)
+Máximo Nava (Segundo de la der. sentado en silla)</p>
+        </div>
+      </div>
+      <div class="gallery-item">
+        <img src="img/80502794_765626430601793_8661550259672973312_n.jpg" alt="Distribución de producto">
+        <div class="gallery-overlay">
+          <h3>LOS PRIMEROS GENERADORES DE ELECTRICIDAD QUE LLEGARON A BOLIVIA 
+              QUE TRAJO SIMON I. PATIÑO</h3>
+          <p>PARA LA MINA DE LA SALVADORA EN EL AÑO 1900 APROXIMADAMENTE
+SIMILAR A ESTOS GENERADORES UTILIZO EL BARCO TITANIC 
+SE ENCUENTRA EN MIRAFLORES </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de Información -->
+  <section id="informacion">
+    <h2 class="section-title">Información de Contacto</h2>
+    <div class="info-container">
+      <div class="map-container">
+        <iframe 
+          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d240857.4539127562!2d-66.6343947221181!3d-18.47157269999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x93fce1add5455ecf%3A0x7dfeae21780a2748!2sSimon%20Pati%C3%B1o!5e0!3m2!1ses!2sbo!4v1748398663461!5m2!1ses!2sbo" 
+          width="100%" 
+          height="100%" 
+          style="border:0;" 
+          allowfullscreen="" 
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
+      </div>
+      <div class="contact-info">
+        <h3>Datos de Contacto</h3>
+        <p><i class="fas fa-envelope"></i> <strong>Correo:</strong> contacto@mirafloresdiesel.bo</p>
+        <p><i class="fas fa-phone"></i> <strong>Teléfono:</strong> +591 123 456 789</p>
+        <p><i class="fas fa-map-marker-alt"></i> <strong>Dirección:</strong> Miraflores, Uncia, Potosí - Bolivia</p>
+        <p><i class="fas fa-clock"></i> <strong>Horario de Atención:</strong> Lunes a Viernes, 8:00 - 16:00</p>
+        <p><i class="fas fa-industry"></i> <strong>Capacidad de Producción:</strong> 5,000 barriles/día</p>
+        
+        <div class="facts-box">
+          <strong>¿Sabías que...?</strong> La Planta de Diesel Miraflores abastece aproximadamente el <strong>15% del consumo regional</strong> de combustible, contribuyendo significativamente al desarrollo económico del occidente boliviano.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-content">
+      <div class="footer-logo">
+        <i class="fas fa-industry"></i> Planta Diesel Miraflores
+      </div>
+      <div class="footer-links">
+        <a href="#inicio" class="nav-link">Inicio</a>
+        <a href="#historia" class="nav-link">Historia</a>
+        <a href="#galeria" class="nav-link">Galería</a>
+        <a href="#informacion" class="nav-link">Información</a>
+      </div>
+      <div class="copyright">
+        <p>&copy; 2025 Planta de Diesel Miraflores - Todos los derechos reservados</p>
+      </div>
+    </div>
+  </footer>
+
+ <script>
+    // Navegación entre secciones
+    document.addEventListener('DOMContentLoaded', function() {
+      const navLinks = document.querySelectorAll('.nav-link');
+      const sections = document.querySelectorAll('section');
+      const menuToggle = document.querySelector('.menu-toggle');
+      const menu = document.querySelector('.menu');
+      const header = document.querySelector('header');
+      
+      // Función para cambiar de sección
+      function changeSection(sectionId) {
+        sections.forEach(section => {
+          section.classList.remove('active');
+        });
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+        });
+        
+        document.getElementById(sectionId).classList.add('active');
+        document.querySelector(`a[href="#${sectionId}"]`).classList.add('active');
+        
+        // Cerrar menú en móviles después de seleccionar una opción
+        if (window.innerWidth <= 768) {
+          menu.classList.remove('active');
+        }
+      }
+      
+      // Event listeners para los enlaces de navegación
+      navLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          e.preventDefault();
+          const sectionId = this.getAttribute('href').substring(1);
+          changeSection(sectionId);
+          window.scrollTo(0, 0);
+        });
+      });
+      
+      // Toggle del menú móvil
+      menuToggle.addEventListener('click', function() {
+        menu.classList.toggle('active');
+      });
+      
+      // Header con scroll
+      window.addEventListener('scroll', function() {
+        if (window.scrollY > 50) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+      
+      // Cargar modelo 3D
+      init3DModel();
+      
+      // Inicializar galería con lightbox
+      initGallery();
+    });
+    
+    // Configuración del modelo 3D con Three.js
+    function init3DModel() {
+      const container = document.getElementById('model-container');
+      
+      // Crear escena
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x1a365d);
+      scene.fog = new THREE.Fog(0x1a365d, 5, 15);
+      
+      // Crear cámara
+      const camera = new THREE.PerspectiveCamera(
+        75, 
+        container.clientWidth / container.clientHeight, 
+        0.1, 
+        1000
+      );
+      camera.position.set(5, 3, 5);
+      
+      // Crear renderizador
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.shadowMap.enabled = true;
+      renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+      renderer.setClearColor(0x000000, 0);
+      container.innerHTML = '';
+      container.appendChild(renderer.domElement);
+      
+      // Añadir luces
+      const ambientLight = new THREE.AmbientLight(0x404040, 0.8);
+      scene.add(ambientLight);
+      
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 10, 7);
+      directionalLight.castShadow = true;
+      directionalLight.shadow.camera.near = 2;
+      directionalLight.shadow.camera.far = 20;
+      directionalLight.shadow.camera.left = -10;
+      directionalLight.shadow.camera.right = 10;
+      directionalLight.shadow.camera.top = 10;
+      directionalLight.shadow.camera.bottom = -10;
+      directionalLight.shadow.mapSize.width = 2048;
+      directionalLight.shadow.mapSize.height = 2048;
+      scene.add(directionalLight);
+      
+      // Añadir punto de luz para efectos
+      const pointLight = new THREE.PointLight(0xe67e22, 1, 100);
+      pointLight.position.set(0, 3, 0);
+      scene.add(pointLight);
+      
+      // Cargar el modelo GLB
+      loadGLBModel(scene);
+      
+      // Añadir controles de órbita
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 3;
+      controls.maxDistance = 15;
+      controls.enablePan = false;
+      
+      // Ajustar el modelo al redimensionar la ventana
+      window.addEventListener('resize', function() {
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+      
+      // Animación
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+    }
+    
+    // Cargar modelo GLB
+    function loadGLBModel(scene) {
+      const loader = new THREE.GLTFLoader();
+      
+      // OPCIONES PARA ALOJAR TU MODELO:
+      // 1. Subirlo a GitHub y usar GitHub Pages
+      // const modelUrl = 'https://tuusuario.github.io/repositorio/miraflores.glb';
+      
+      // 2. Usar un servicio como Sketchfab (si lo has subido allí)
+      // const modelUrl = 'https://sketchfab.com/models/tu-modelo-id/embed';
+      
+      // 3. Alojarlo en un servicio de almacenamiento como Dropbox o Google Drive
+      // (Nota: necesitarás obtener un enlace directo de descarga)
+      // const modelUrl = 'https://www.dropbox.com/s/tucodigo/miraflores.glb?raw=1';
+      
+      // 4. Servirlo localmente desde tu propio servidor (recomendado para producción)
+      const modelUrl = 'miraflores.glb'; // Ruta relativa desde tu sitio web
+      
+      // Mensaje de carga
+      const loadingMsg = document.createElement('div');
+      loadingMsg.style.position = 'absolute';
+      loadingMsg.style.top = '50%';
+      loadingMsg.style.left = '50%';
+      loadingMsg.style.transform = 'translate(-50%, -50%)';
+      loadingMsg.style.color = 'white';
+      loadingMsg.style.textAlign = 'center';
+      loadingMsg.innerHTML = '<i class="fas fa-cog fa-spin" style="font-size: 48px;"></i><p>Cargando modelo 3D...</p>';
+      document.getElementById('model-container').appendChild(loadingMsg);
+      
+      // Cargar el modelo
+      loader.load(
+        modelUrl,
+        function (gltf) {
+          const model = gltf.scene;
+          
+          // Ajustar escala y posición del modelo
+          model.scale.set(3, 3, 3);
+          model.position.set(0, 0, 0);
+          
+          // Habilitar sombras para todos los elementos del modelo
+          model.traverse(function (node) {
+            if (node.isMesh) {
+              node.castShadow = true;
+              node.receiveShadow = true;
+            }
+          });
+          
+          scene.add(model);
+          
+          // Eliminar mensaje de carga
+          document.getElementById('model-container').removeChild(loadingMsg);
+          
+          // Ajustar los controles de la cámara para enfocar el modelo
+          const box = new THREE.Box3().setFromObject(model);
+          const center = box.getCenter(new THREE.Vector3());
+          const size = box.getSize(new THREE.Vector3());
+          
+          // Ajustar la cámara para que encuadre bien el modelo
+          const maxDim = Math.max(size.x, size.y, size.z);
+          const fov = camera.fov * (Math.PI / 180);
+          let cameraZ = Math.abs(maxDim / Math.sin(fov / 2));
+          
+          camera.position.set(center.x, center.y, center.z + cameraZ);
+          camera.lookAt(center);
+        },
+        function (xhr) {
+          // Progreso de carga
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+        function (error) {
+          // Manejo de errores
+          console.error('Error al cargar el modelo:', error);
+          
+          // Eliminar mensaje de carga
+          document.getElementById('model-container').removeChild(loadingMsg);
+          
+          // Mostrar mensaje de error
+          const errorMsg = document.createElement('div');
+          errorMsg.style.position = 'absolute';
+          errorMsg.style.top = '50%';
+          errorMsg.style.left = '50%';
+          errorMsg.style.transform = 'translate(-50%, -50%)';
+          errorMsg.style.color = 'white';
+          errorMsg.style.textAlign = 'center';
+          errorMsg.innerHTML = '<i class="fas fa-exclamation-triangle" style="font-size: 48px;"></i><p>Error al cargar el modelo 3D</p><p>Por favor, verifica que la ruta al archivo sea correcta</p>';
+          document.getElementById('model-container').appendChild(errorMsg);
+        }
+      );
+    }
+    
+    // Inicializar funcionalidad de la galería
+    function initGallery() {
+      const galleryItems = document.querySelectorAll('.gallery-item');
+      
+      galleryItems.forEach(item => {
+        item.addEventListener('click', function() {
+          const imgSrc = this.querySelector('img').src;
+          const imgAlt = this.querySelector('img').alt;
+          const overlayTitle = this.querySelector('.gallery-overlay h3').textContent;
+          const overlayDesc = this.querySelector('.gallery-overlay p').textContent;
+          
+          openLightbox(imgSrc, imgAlt, overlayTitle, overlayDesc);
+        });
+      });
+    }
+    
+    // Lightbox para la galería
+    function openLightbox(src, alt, title, description) {
+      // Crear elemento lightbox si no existe
+      let lightbox = document.getElementById('lightbox');
+      
+      if (!lightbox) {
+        lightbox = document.createElement('div');
+        lightbox.id = 'lightbox';
+        lightbox.style.position = 'fixed';
+        lightbox.style.top = '0';
+        lightbox.style.left = '0';
+        lightbox.style.width = '100%';
+        lightbox.style.height = '100%';
+        lightbox.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+        lightbox.style.display = 'flex';
+        lightbox.style.flexDirection = 'column';
+        lightbox.style.justifyContent = 'center';
+        lightbox.style.alignItems = 'center';
+        lightbox.style.zIndex = '2000';
+        lightbox.style.opacity = '0';
+        lightbox.style.transition = 'opacity 0.3s ease';
+        
+        const lightboxContent = document.createElement('div');
+        lightboxContent.style.position = 'relative';
+        lightboxContent.style.maxWidth = '90%';
+        lightboxContent.style.maxHeight = '80%';
+        
+        const lightboxImg = document.createElement('img');
+        lightboxImg.style.maxWidth = '100%';
+        lightboxImg.style.maxHeight = '100%';
+        lightboxImg.style.borderRadius = '8px';
+        
+        const lightboxCaption = document.createElement('div');
+        lightboxCaption.style.color = 'white';
+        lightboxCaption.style.textAlign = 'center';
+        lightboxCaption.style.marginTop = '15px';
+        
+        const lightboxTitle = document.createElement('h3');
+        lightboxTitle.style.marginBottom = '8px';
+        lightboxTitle.style.color = '#e67e22';
+        
+        const lightboxDesc = document.createElement('p');
+        
+        const closeBtn = document.createElement('button');
+        closeBtn.innerHTML = '&times;';
+        closeBtn.style.position = 'absolute';
+        closeBtn.style.top = '-40px';
+        closeBtn.style.right = '0';
+        closeBtn.style.background = 'none';
+        closeBtn.style.border = 'none';
+        closeBtn.style.color = 'white';
+        closeBtn.style.fontSize = '36px';
+        closeBtn.style.cursor = 'pointer';
+        closeBtn.style.padding = '5px';
+        
+        closeBtn.addEventListener('click', function() {
+          closeLightbox();
+        });
+        
+        lightboxContent.appendChild(lightboxImg);
+        lightboxContent.appendChild(lightboxCaption);
+        lightboxCaption.appendChild(lightboxTitle);
+        lightboxCaption.appendChild(lightboxDesc);
+        lightboxContent.appendChild(closeBtn);
+        lightbox.appendChild(lightboxContent);
+        
+        document.body.appendChild(lightbox);
+        
+        // Cerrar lightbox al hacer clic fuera de la imagen
+        lightbox.addEventListener('click', function(e) {
+          if (e.target === lightbox) {
+            closeLightbox();
+          }
+        });
+        
+        // Cerrar lightbox con la tecla Escape
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && lightbox.style.display === 'flex') {
+            closeLightbox();
+          }
+        });
+      }
+      
+      // Configurar contenido del lightbox
+      const lightboxImg = lightbox.querySelector('img');
+      const lightboxTitle = lightbox.querySelector('h3');
+      const lightboxDesc = lightbox.querySelector('p');
+      
+      lightboxImg.src = src;
+      lightboxImg.alt = alt;
+      lightboxTitle.textContent = title;
+      lightboxDesc.textContent = description;
+      
+      // Mostrar lightbox
+      lightbox.style.display = 'flex';
+      setTimeout(() => {
+        lightbox.style.opacity = '1';
+      }, 10);
+    }
+    
+    function closeLightbox() {
+      const lightbox = document.getElementById('lightbox');
+      if (lightbox) {
+        lightbox.style.opacity = '0';
+        setTimeout(() => {
+          lightbox.style.display = 'none';
+        }, 300);
+      }
+    }
+  </script>
